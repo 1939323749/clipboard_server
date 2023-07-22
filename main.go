@@ -4,12 +4,15 @@ import (
 	"context"
 	ClipboardService "github.com/1939323749/clipboard_server/clipboard_service"
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"log"
 	"net"
 	_ "net/http/pprof"
+	"time"
 )
 
 type server struct {
@@ -19,8 +22,9 @@ type server struct {
 }
 
 type StringItem struct {
-	ID    string `bson:"_id,omitempty"`
-	Value string `bson:"value,omitempty"`
+	ID        string    `bson:"_id,omitempty"`
+	Value     string    `bson:"value,omitempty"`
+	CreatedAt time.Time `bson:"createdAt,omitempty"`
 }
 
 func main() {
@@ -38,18 +42,20 @@ func main() {
 	s := grpc.NewServer()
 	ClipboardService.RegisterClipboardServiceServer(s, &server{db: mongoClient.Database("strings")})
 
+	reflection.Register(s)
+
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
 
 func (s *server) CreateClipboards(ctx context.Context, in *ClipboardService.CreateClipboardsRequest) (*ClipboardService.CreateClipboardsResponse, error) {
-	stringCollection := s.db.Collection("stringCollection")
+	stringCollection := s.db.Collection("strings")
 	var ids []string
 	for _, value := range in.Values {
 		id := uuid.New().String()
 		ids = append(ids, id)
-		_, err := stringCollection.InsertOne(ctx, &StringItem{ID: id, Value: value})
+		_, err := stringCollection.InsertOne(ctx, &StringItem{ID: id, Value: value, CreatedAt: time.Now()})
 		if err != nil {
 			return nil, err
 		}
@@ -63,20 +69,29 @@ func (s *server) CreateClipboards(ctx context.Context, in *ClipboardService.Crea
 }
 
 func (s *server) GetClipboards(ctx context.Context, in *ClipboardService.GetClipboardsRequest) (*ClipboardService.GetClipboardsResponse, error) {
-	stringCollection := s.db.Collection("stringCollection")
+	stringCollection := s.db.Collection("strings")
 	var values []string
-	for _, id := range in.Ids {
-		result := stringCollection.FindOne(ctx, &StringItem{ID: id})
-		if result.Err() != nil {
-			return nil, result.Err()
-		}
+
+	opts := options.Find().SetSort(bson.D{{"createdAt", -1}})
+	cursor, err := stringCollection.Find(ctx, bson.M{}, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
 		var item StringItem
-		err := result.Decode(&item)
+		err := cursor.Decode(&item)
 		if err != nil {
 			return nil, err
 		}
 		values = append(values, item.Value)
 	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
 	return &ClipboardService.GetClipboardsResponse{Values: values}, nil
 }
 
