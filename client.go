@@ -45,6 +45,18 @@ func main() {
 		if err != nil {
 			log.Fatalf("Error getting clipboards: %v", err)
 		}
-		log.Printf("Got clipboards: %v", getClipboardsResponse.Values)
+		for _, item := range getClipboardsResponse.Clipboards {
+			log.Printf("Got clipboard: ID=%s, Content=%s", item.Id, item.Content)
+		}
+
+		deleteClipboardsResponse, err := client.DeleteClipboards(context.Background(), &ClipboardService.DeleteClipboardsRequest{Ids: createClipboardsResponse.Ids})
+		if err != nil {
+			log.Fatalf("Error deleting clipboards: %v", err)
+		}
+		if deleteClipboardsResponse.Success {
+			log.Printf("Deleted clipboards: %v", createClipboardsResponse.Ids)
+		} else {
+			log.Printf("Failed to delete clipboards: %v", createClipboardsResponse.Ids)
+		}
 	}
 }

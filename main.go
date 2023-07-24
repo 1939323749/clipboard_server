@@ -69,11 +69,11 @@ func (s *server) CreateClipboards(ctx context.Context, in *ClipboardService.Crea
 }
 
 func (s *server) GetClipboards(ctx context.Context, in *ClipboardService.GetClipboardsRequest) (*ClipboardService.GetClipboardsResponse, error) {
-	stringCollection := s.db.Collection("strings")
-	var values []string
+	clipboardCollection := s.db.Collection("clipboards")
+	var clipboardItems []*ClipboardService.ClipboardItem
 
 	opts := options.Find().SetSort(bson.D{{"createdAt", -1}})
-	cursor, err := stringCollection.Find(ctx, bson.M{}, opts)
+	cursor, err := clipboardCollection.Find(ctx, bson.M{}, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -85,14 +85,14 @@ func (s *server) GetClipboards(ctx context.Context, in *ClipboardService.GetClip
 		if err != nil {
 			return nil, err
 		}
-		values = append(values, item.Value)
+		clipboardItems = append(clipboardItems, &ClipboardService.ClipboardItem{Id: item.ID, Content: item.Value})
 	}
 
 	if err := cursor.Err(); err != nil {
 		return nil, err
 	}
 
-	return &ClipboardService.GetClipboardsResponse{Values: values}, nil
+	return &ClipboardService.GetClipboardsResponse{Clipboards: clipboardItems}, nil
 }
 
 func (s *server) SubscribeClipboard(in *ClipboardService.SubscribeClipboardRequest, stream ClipboardService.ClipboardService_SubscribeClipboardServer) error {
@@ -106,4 +106,15 @@ func (s *server) SubscribeClipboard(in *ClipboardService.SubscribeClipboardReque
 		}
 	}
 	return nil
+}
+
+func (s *server) DeleteClipboards(ctx context.Context, in *ClipboardService.DeleteClipboardsRequest) (*ClipboardService.DeleteClipboardsResponse, error) {
+	stringCollection := s.db.Collection("strings")
+	for _, id := range in.Ids {
+		_, err := stringCollection.DeleteOne(ctx, &StringItem{ID: id})
+		if err != nil {
+			return &ClipboardService.DeleteClipboardsResponse{Success: false}, err
+		}
+	}
+	return &ClipboardService.DeleteClipboardsResponse{Success: true}, nil
 }

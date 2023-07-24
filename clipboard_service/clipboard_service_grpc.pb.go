@@ -25,6 +25,7 @@ type ClipboardServiceClient interface {
 	CreateClipboards(ctx context.Context, in *CreateClipboardsRequest, opts ...grpc.CallOption) (*CreateClipboardsResponse, error)
 	GetClipboards(ctx context.Context, in *GetClipboardsRequest, opts ...grpc.CallOption) (*GetClipboardsResponse, error)
 	SubscribeClipboard(ctx context.Context, in *SubscribeClipboardRequest, opts ...grpc.CallOption) (ClipboardService_SubscribeClipboardClient, error)
+	DeleteClipboards(ctx context.Context, in *DeleteClipboardsRequest, opts ...grpc.CallOption) (*DeleteClipboardsResponse, error)
 }
 
 type clipboardServiceClient struct {
@@ -85,6 +86,15 @@ func (x *clipboardServiceSubscribeClipboardClient) Recv() (*ClipboardMessage, er
 	return m, nil
 }
 
+func (c *clipboardServiceClient) DeleteClipboards(ctx context.Context, in *DeleteClipboardsRequest, opts ...grpc.CallOption) (*DeleteClipboardsResponse, error) {
+	out := new(DeleteClipboardsResponse)
+	err := c.cc.Invoke(ctx, "/clipboard_service.ClipboardService/DeleteClipboards", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ClipboardServiceServer is the server API for ClipboardService service.
 // All implementations must embed UnimplementedClipboardServiceServer
 // for forward compatibility
@@ -92,6 +102,7 @@ type ClipboardServiceServer interface {
 	CreateClipboards(context.Context, *CreateClipboardsRequest) (*CreateClipboardsResponse, error)
 	GetClipboards(context.Context, *GetClipboardsRequest) (*GetClipboardsResponse, error)
 	SubscribeClipboard(*SubscribeClipboardRequest, ClipboardService_SubscribeClipboardServer) error
+	DeleteClipboards(context.Context, *DeleteClipboardsRequest) (*DeleteClipboardsResponse, error)
 	mustEmbedUnimplementedClipboardServiceServer()
 }
 
@@ -107,6 +118,9 @@ func (UnimplementedClipboardServiceServer) GetClipboards(context.Context, *GetCl
 }
 func (UnimplementedClipboardServiceServer) SubscribeClipboard(*SubscribeClipboardRequest, ClipboardService_SubscribeClipboardServer) error {
 	return status.Errorf(codes.Unimplemented, "method SubscribeClipboard not implemented")
+}
+func (UnimplementedClipboardServiceServer) DeleteClipboards(context.Context, *DeleteClipboardsRequest) (*DeleteClipboardsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteClipboards not implemented")
 }
 func (UnimplementedClipboardServiceServer) mustEmbedUnimplementedClipboardServiceServer() {}
 
@@ -178,6 +192,24 @@ func (x *clipboardServiceSubscribeClipboardServer) Send(m *ClipboardMessage) err
 	return x.ServerStream.SendMsg(m)
 }
 
+func _ClipboardService_DeleteClipboards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteClipboardsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClipboardServiceServer).DeleteClipboards(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/clipboard_service.ClipboardService/DeleteClipboards",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClipboardServiceServer).DeleteClipboards(ctx, req.(*DeleteClipboardsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ClipboardService_ServiceDesc is the grpc.ServiceDesc for ClipboardService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -192,6 +224,10 @@ var ClipboardService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetClipboards",
 			Handler:    _ClipboardService_GetClipboards_Handler,
+		},
+		{
+			MethodName: "DeleteClipboards",
+			Handler:    _ClipboardService_DeleteClipboards_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
