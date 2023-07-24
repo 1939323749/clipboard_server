@@ -38,7 +38,8 @@ message DeleteClipboardsResponse {
 message SubscribeClipboardRequest {}
 
 message ClipboardMessage {
-  string value = 1;
+  repeated ClipboardItem items= 1;
+  string operation = 2;
 }
 
 message ClipboardItem {

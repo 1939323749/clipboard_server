@@ -27,7 +27,7 @@ func main() {
 			if err != nil {
 				log.Fatalf("Error receiving: %v", err)
 			}
-			log.Printf("Received: %s", in.Value)
+			log.Printf("Received: %s", in)
 		}
 	}()
 	select {}

@@ -60,7 +60,7 @@ func (s *server) CreateClipboards(ctx context.Context, in *ClipboardService.Crea
 			return nil, err
 		}
 		for _, subscriber := range s.subscribers {
-			if err := subscriber.Send(&ClipboardService.ClipboardMessage{Value: value}); err != nil {
+			if err := subscriber.Send(&ClipboardService.ClipboardMessage{Items: []*ClipboardService.ClipboardItem{{Id: id, Content: value}}, Operation: "create"}); err != nil {
 				log.Printf("Failed to send string to subscriber: %v", err)
 			}
 		}
@@ -69,7 +69,7 @@ func (s *server) CreateClipboards(ctx context.Context, in *ClipboardService.Crea
 }
 
 func (s *server) GetClipboards(ctx context.Context, in *ClipboardService.GetClipboardsRequest) (*ClipboardService.GetClipboardsResponse, error) {
-	clipboardCollection := s.db.Collection("clipboards")
+	clipboardCollection := s.db.Collection("strings")
 	var clipboardItems []*ClipboardService.ClipboardItem
 
 	opts := options.Find().SetSort(bson.D{{"createdAt", -1}})
@@ -111,9 +111,14 @@ func (s *server) SubscribeClipboard(in *ClipboardService.SubscribeClipboardReque
 func (s *server) DeleteClipboards(ctx context.Context, in *ClipboardService.DeleteClipboardsRequest) (*ClipboardService.DeleteClipboardsResponse, error) {
 	stringCollection := s.db.Collection("strings")
 	for _, id := range in.Ids {
-		_, err := stringCollection.DeleteOne(ctx, &StringItem{ID: id})
+		_, err := stringCollection.DeleteOne(ctx, bson.M{"_id": id})
 		if err != nil {
 			return &ClipboardService.DeleteClipboardsResponse{Success: false}, err
+		}
+		for _, subscriber := range s.subscribers {
+			if err := subscriber.Send(&ClipboardService.ClipboardMessage{Items: []*ClipboardService.ClipboardItem{{Id: id}}, Operation: "delete"}); err != nil {
+				log.Printf("Failed to send string to subscriber: %v", err)
+			}
 		}
 	}
 	return &ClipboardService.DeleteClipboardsResponse{Success: true}, nil

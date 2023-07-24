@@ -345,7 +345,8 @@ type ClipboardMessage struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Value string `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	Items     []*ClipboardItem `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	Operation string           `protobuf:"bytes,2,opt,name=operation,proto3" json:"operation,omitempty"`
 }
 
 func (x *ClipboardMessage) Reset() {
@@ -380,9 +381,16 @@ func (*ClipboardMessage) Descriptor() ([]byte, []int) {
 	return file_clipboard_service_clipboard_service_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *ClipboardMessage) GetValue() string {
+func (x *ClipboardMessage) GetItems() []*ClipboardItem {
 	if x != nil {
-		return x.Value
+		return x.Items
+	}
+	return nil
+}
+
+func (x *ClipboardMessage) GetOperation() string {
+	if x != nil {
+		return x.Operation
 	}
 	return ""
 }
@@ -471,9 +479,13 @@ var file_clipboard_service_clipboard_service_proto_rawDesc = []byte{
 	0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07,
 	0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x22, 0x1b, 0x0a, 0x19, 0x53, 0x75, 0x62, 0x73, 0x63,
 	0x72, 0x69, 0x62, 0x65, 0x43, 0x6c, 0x69, 0x70, 0x62, 0x6f, 0x61, 0x72, 0x64, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x22, 0x28, 0x0a, 0x10, 0x43, 0x6c, 0x69, 0x70, 0x62, 0x6f, 0x61, 0x72,
-	0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75,
-	0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x22, 0x39,
+	0x75, 0x65, 0x73, 0x74, 0x22, 0x68, 0x0a, 0x10, 0x43, 0x6c, 0x69, 0x70, 0x62, 0x6f, 0x61, 0x72,
+	0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x36, 0x0a, 0x05, 0x69, 0x74, 0x65, 0x6d,
+	0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x20, 0x2e, 0x63, 0x6c, 0x69, 0x70, 0x62, 0x6f,
+	0x61, 0x72, 0x64, 0x5f, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x43, 0x6c, 0x69, 0x70,
+	0x62, 0x6f, 0x61, 0x72, 0x64, 0x49, 0x74, 0x65, 0x6d, 0x52, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73,
+	0x12, 0x1c, 0x0a, 0x09, 0x6f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x09, 0x6f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x39,
 	0x0a, 0x0d, 0x43, 0x6c, 0x69, 0x70, 0x62, 0x6f, 0x61, 0x72, 0x64, 0x49, 0x74, 0x65, 0x6d, 0x12,
 	0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12,
 	0x18, 0x0a, 0x07, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
@@ -539,19 +551,20 @@ var file_clipboard_service_clipboard_service_proto_goTypes = []interface{}{
 }
 var file_clipboard_service_clipboard_service_proto_depIdxs = []int32{
 	8, // 0: clipboard_service.GetClipboardsResponse.clipboards:type_name -> clipboard_service.ClipboardItem
-	0, // 1: clipboard_service.ClipboardService.CreateClipboards:input_type -> clipboard_service.CreateClipboardsRequest
-	2, // 2: clipboard_service.ClipboardService.GetClipboards:input_type -> clipboard_service.GetClipboardsRequest
-	6, // 3: clipboard_service.ClipboardService.SubscribeClipboard:input_type -> clipboard_service.SubscribeClipboardRequest
-	4, // 4: clipboard_service.ClipboardService.DeleteClipboards:input_type -> clipboard_service.DeleteClipboardsRequest
-	1, // 5: clipboard_service.ClipboardService.CreateClipboards:output_type -> clipboard_service.CreateClipboardsResponse
-	3, // 6: clipboard_service.ClipboardService.GetClipboards:output_type -> clipboard_service.GetClipboardsResponse
-	7, // 7: clipboard_service.ClipboardService.SubscribeClipboard:output_type -> clipboard_service.ClipboardMessage
-	5, // 8: clipboard_service.ClipboardService.DeleteClipboards:output_type -> clipboard_service.DeleteClipboardsResponse
-	5, // [5:9] is the sub-list for method output_type
-	1, // [1:5] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	8, // 1: clipboard_service.ClipboardMessage.items:type_name -> clipboard_service.ClipboardItem
+	0, // 2: clipboard_service.ClipboardService.CreateClipboards:input_type -> clipboard_service.CreateClipboardsRequest
+	2, // 3: clipboard_service.ClipboardService.GetClipboards:input_type -> clipboard_service.GetClipboardsRequest
+	6, // 4: clipboard_service.ClipboardService.SubscribeClipboard:input_type -> clipboard_service.SubscribeClipboardRequest
+	4, // 5: clipboard_service.ClipboardService.DeleteClipboards:input_type -> clipboard_service.DeleteClipboardsRequest
+	1, // 6: clipboard_service.ClipboardService.CreateClipboards:output_type -> clipboard_service.CreateClipboardsResponse
+	3, // 7: clipboard_service.ClipboardService.GetClipboards:output_type -> clipboard_service.GetClipboardsResponse
+	7, // 8: clipboard_service.ClipboardService.SubscribeClipboard:output_type -> clipboard_service.ClipboardMessage
+	5, // 9: clipboard_service.ClipboardService.DeleteClipboards:output_type -> clipboard_service.DeleteClipboardsResponse
+	6, // [6:10] is the sub-list for method output_type
+	2, // [2:6] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_clipboard_service_clipboard_service_proto_init() }
