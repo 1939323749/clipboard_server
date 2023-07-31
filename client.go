@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	ClipboardService "github.com/1939323749/clipboard_server/clipboard_service"
+	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"log"
 	"time"
@@ -32,11 +33,13 @@ func main() {
 		}
 	}()
 
+	randomId, _ := uuid.NewUUID()
+
 	// Call CreateClipboards every 5 seconds.
 	ticker := time.NewTicker(5 * time.Second)
 	for range ticker.C {
 		time.Sleep(1 * time.Second)
-		createClipboardsResponse, err := client.CreateClipboards(context.Background(), &ClipboardService.CreateClipboardsRequest{Values: []string{"Hello", "World"}})
+		createClipboardsResponse, err := client.CreateClipboards(context.Background(), &ClipboardService.CreateClipboardsRequest{Values: []string{"Hello", "World"}, DeviceId: randomId.String()})
 		if err != nil {
 			log.Fatalf("Error creating clipboards: %v", err)
 		}

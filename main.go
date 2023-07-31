@@ -25,7 +25,10 @@ type StringItem struct {
 	ID        string    `bson:"_id,omitempty"`
 	Value     string    `bson:"value,omitempty"`
 	CreatedAt time.Time `bson:"createdAt,omitempty"`
+	DeviceID  string    `bson:"deviceID,omitempty"`
 }
+
+var collection = "clipboards"
 
 func main() {
 	lis, err := net.Listen("tcp", ":50051")
@@ -50,17 +53,17 @@ func main() {
 }
 
 func (s *server) CreateClipboards(ctx context.Context, in *ClipboardService.CreateClipboardsRequest) (*ClipboardService.CreateClipboardsResponse, error) {
-	stringCollection := s.db.Collection("strings")
+	stringCollection := s.db.Collection(collection)
 	var ids []string
 	for _, value := range in.Values {
 		id := uuid.New().String()
 		ids = append(ids, id)
-		_, err := stringCollection.InsertOne(ctx, &StringItem{ID: id, Value: value, CreatedAt: time.Now()})
+		_, err := stringCollection.InsertOne(ctx, &StringItem{ID: id, Value: value, CreatedAt: time.Now(), DeviceID: in.DeviceId})
 		if err != nil {
 			return nil, err
 		}
 		for _, subscriber := range s.subscribers {
-			if err := subscriber.Send(&ClipboardService.ClipboardMessage{Items: []*ClipboardService.ClipboardItem{{Id: id, Content: value}}, Operation: "create"}); err != nil {
+			if err := subscriber.Send(&ClipboardService.ClipboardMessage{Items: []*ClipboardService.ClipboardItem{{Id: id, Content: value, DeviceId: in.DeviceId}}, Operation: "create"}); err != nil {
 				log.Printf("Failed to send string to subscriber: %v", err)
 			}
 		}
@@ -69,7 +72,7 @@ func (s *server) CreateClipboards(ctx context.Context, in *ClipboardService.Crea
 }
 
 func (s *server) GetClipboards(ctx context.Context, in *ClipboardService.GetClipboardsRequest) (*ClipboardService.GetClipboardsResponse, error) {
-	clipboardCollection := s.db.Collection("strings")
+	clipboardCollection := s.db.Collection(collection)
 	var clipboardItems []*ClipboardService.ClipboardItem
 
 	opts := options.Find().SetSort(bson.D{{"createdAt", -1}})
@@ -85,7 +88,7 @@ func (s *server) GetClipboards(ctx context.Context, in *ClipboardService.GetClip
 		if err != nil {
 			return nil, err
 		}
-		clipboardItems = append(clipboardItems, &ClipboardService.ClipboardItem{Id: item.ID, Content: item.Value})
+		clipboardItems = append(clipboardItems, &ClipboardService.ClipboardItem{Id: item.ID, Content: item.Value, DeviceId: item.DeviceID})
 	}
 
 	if err := cursor.Err(); err != nil {
@@ -109,7 +112,7 @@ func (s *server) SubscribeClipboard(in *ClipboardService.SubscribeClipboardReque
 }
 
 func (s *server) DeleteClipboards(ctx context.Context, in *ClipboardService.DeleteClipboardsRequest) (*ClipboardService.DeleteClipboardsResponse, error) {
-	stringCollection := s.db.Collection("strings")
+	stringCollection := s.db.Collection(collection)
 	for _, id := range in.Ids {
 		_, err := stringCollection.DeleteOne(ctx, bson.M{"_id": id})
 		if err != nil {
