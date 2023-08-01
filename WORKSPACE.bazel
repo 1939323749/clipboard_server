@@ -33,6 +33,7 @@ http_archive(
     ],
 )
 
+
 load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 
 go_rules_dependencies()
@@ -40,8 +41,12 @@ go_rules_dependencies()
 go_register_toolchains(version = GO_VERSION)
 
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+load("//:deps.bzl", "go_dependencies")
 
-gazelle_dependencies(go_repository_default_config ="//:WORKSPACE.bazel")
+# gazelle:repository_macro deps.bzl%go_dependencies
+go_dependencies()
+
+gazelle_dependencies(go_repository_default_config = "//:WORKSPACE.bazel")
 
 # Protobuf
 git_repository(
@@ -51,3 +56,5 @@ git_repository(
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
+protobuf_deps()

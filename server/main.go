@@ -47,6 +47,8 @@ func main() {
 
 	reflection.Register(s)
 
+	log.Printf("serving on %v", lis.Addr())
+
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

@@ -1,7 +1,7 @@
 ## quickstart
 
 ```bash
-go run main.go
+bazel run //server:server
 ```
 
 ## test
