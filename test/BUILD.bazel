@@ -1,11 +1,75 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 
+# test_delete
+
 go_library(
-    name = "test_lib",
+    name = "test_delete_lib",
     srcs = [
         "test_delete.go",
+    ],
+    importpath = "github.com/1939323749/clipboard_server/test",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//proto",
+        "@com_github_google_uuid//:uuid",
+        "@org_golang_google_grpc//:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "test_delete",
+    embed = [":test_delete_lib"],
+    visibility = ["//visibility:public"],
+)
+
+# test_clipboards
+
+go_library(
+    name = "test_getclipboards_lib",
+    srcs = [
         "test_getclipboards.go",
+    ],
+    importpath = "github.com/1939323749/clipboard_server/test",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//proto",
+        "@org_golang_google_grpc//:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "test_getclipboards",
+    embed = [":test_getclipboards_lib"],
+    visibility = ["//visibility:public"],
+)
+
+# test_send
+
+go_library(
+    name = "test_send_lib",
+    srcs = [
         "test_send.go",
+    ],
+    importpath = "github.com/1939323749/clipboard_server/test",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//proto",
+        "@com_github_google_uuid//:uuid",
+        "@org_golang_google_grpc//:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "test_send",
+    embed = [":test_send_lib"],
+    visibility = ["//visibility:public"],
+)
+
+# test_subscribe
+
+go_library(
+    name = "test_subscribe_lib",
+    srcs = [
         "test_subscribe.go",
     ],
     importpath = "github.com/1939323749/clipboard_server/test",
@@ -18,24 +82,7 @@ go_library(
 )
 
 go_binary(
-    name = "test",
-    embed = [":test_lib"],
+    name = "test_subscribe",
+    embed = [":test_subscribe_lib"],
     visibility = ["//visibility:public"],
-)
-
-go_library(
-    name = "lib",
-    srcs = [
-        "test_delete.go",
-        "test_getclipboards.go",
-        "test_send.go",
-        "test_subscribe.go",
-    ],
-    importpath = "",
-    visibility = ["//visibility:private"],
-    deps = [
-        "//proto",
-        "@com_github_google_uuid//:go_default_library",
-        "@org_golang_google_grpc//:go_default_library",
-    ],
 )

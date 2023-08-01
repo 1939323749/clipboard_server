@@ -7,15 +7,27 @@ bazel run //server:server
 ## test
 
 ```bash
-go run client.go
-go run test_subscribe.go
-go run test_delete.go
+bazel run //test:test_delete
+bazel run //test:test_getclipboards
+bazel run //test:test_send
+bazel run //test:test_subscribe
 ```
 
-## update proto
+## for development
+
+### generate proto files
+
+**protoc** needs to be installed
 
 ```bash
 protoc --go_out=. --go_opt=paths=source_relative \
     --go-grpc_out=. --go-grpc_opt=paths=source_relative \
-    proto/proto.proto
+    proto/clipboard_service.proto
+```
+
+### update deps
+
+```bash
+bazel run //:gazelle
+bazel run //:gazelle-update-repos 
 ```

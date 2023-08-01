@@ -1,4 +1,5 @@
 # gazelle:exclude proto/**/*.go
+# gazelle:exclude test/**/*.go
 # gazelle:prefix github.com/1939323749/clipboard_server
 load("@bazel_gazelle//:def.bzl", "gazelle")
 
