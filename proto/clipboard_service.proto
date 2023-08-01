@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package clipboard_service;
 
-option go_package = "github.com/1939323749/clipboard_server/clipboard_service";
+option go_package = "github.com/1939323749/clipboard_server/proto";
 
 service ClipboardService {
   rpc CreateClipboards (CreateClipboardsRequest) returns (CreateClipboardsResponse) {}

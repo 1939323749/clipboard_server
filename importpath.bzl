@@ -1,0 +1,1 @@
+IMPORT_PATH="github.com/1939323749/clipboard_server"

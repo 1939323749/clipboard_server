@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v4.23.4
-// source: clipboard_service/clipboard_service.proto
+// source: proto/proto.proto
 
-package clipboard_service
+package proto
 
 import (
 	context "context"
@@ -38,7 +38,7 @@ func NewClipboardServiceClient(cc grpc.ClientConnInterface) ClipboardServiceClie
 
 func (c *clipboardServiceClient) CreateClipboards(ctx context.Context, in *CreateClipboardsRequest, opts ...grpc.CallOption) (*CreateClipboardsResponse, error) {
 	out := new(CreateClipboardsResponse)
-	err := c.cc.Invoke(ctx, "/clipboard_service.ClipboardService/CreateClipboards", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.ClipboardService/CreateClipboards", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (c *clipboardServiceClient) CreateClipboards(ctx context.Context, in *Creat
 
 func (c *clipboardServiceClient) GetClipboards(ctx context.Context, in *GetClipboardsRequest, opts ...grpc.CallOption) (*GetClipboardsResponse, error) {
 	out := new(GetClipboardsResponse)
-	err := c.cc.Invoke(ctx, "/clipboard_service.ClipboardService/GetClipboards", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.ClipboardService/GetClipboards", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (c *clipboardServiceClient) GetClipboards(ctx context.Context, in *GetClipb
 }
 
 func (c *clipboardServiceClient) SubscribeClipboard(ctx context.Context, in *SubscribeClipboardRequest, opts ...grpc.CallOption) (ClipboardService_SubscribeClipboardClient, error) {
-	stream, err := c.cc.NewStream(ctx, &ClipboardService_ServiceDesc.Streams[0], "/clipboard_service.ClipboardService/SubscribeClipboard", opts...)
+	stream, err := c.cc.NewStream(ctx, &ClipboardService_ServiceDesc.Streams[0], "/proto.ClipboardService/SubscribeClipboard", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (x *clipboardServiceSubscribeClipboardClient) Recv() (*ClipboardMessage, er
 
 func (c *clipboardServiceClient) DeleteClipboards(ctx context.Context, in *DeleteClipboardsRequest, opts ...grpc.CallOption) (*DeleteClipboardsResponse, error) {
 	out := new(DeleteClipboardsResponse)
-	err := c.cc.Invoke(ctx, "/clipboard_service.ClipboardService/DeleteClipboards", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.ClipboardService/DeleteClipboards", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func _ClipboardService_CreateClipboards_Handler(srv interface{}, ctx context.Con
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/clipboard_service.ClipboardService/CreateClipboards",
+		FullMethod: "/proto.ClipboardService/CreateClipboards",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ClipboardServiceServer).CreateClipboards(ctx, req.(*CreateClipboardsRequest))
@@ -163,7 +163,7 @@ func _ClipboardService_GetClipboards_Handler(srv interface{}, ctx context.Contex
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/clipboard_service.ClipboardService/GetClipboards",
+		FullMethod: "/proto.ClipboardService/GetClipboards",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ClipboardServiceServer).GetClipboards(ctx, req.(*GetClipboardsRequest))
@@ -202,7 +202,7 @@ func _ClipboardService_DeleteClipboards_Handler(srv interface{}, ctx context.Con
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/clipboard_service.ClipboardService/DeleteClipboards",
+		FullMethod: "/proto.ClipboardService/DeleteClipboards",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ClipboardServiceServer).DeleteClipboards(ctx, req.(*DeleteClipboardsRequest))
@@ -214,7 +214,7 @@ func _ClipboardService_DeleteClipboards_Handler(srv interface{}, ctx context.Con
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ClipboardService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "clipboard_service.ClipboardService",
+	ServiceName: "proto.ClipboardService",
 	HandlerType: (*ClipboardServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -237,5 +237,5 @@ var ClipboardService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "clipboard_service/clipboard_service.proto",
+	Metadata: "proto/proto.proto",
 }

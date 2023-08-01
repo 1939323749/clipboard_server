@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	ClipboardService "github.com/1939323749/clipboard_server/clipboard_service"
+	ClipboardService "github.com/1939323749/clipboard_server/proto"
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"log"

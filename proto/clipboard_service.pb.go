@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.28.1
 // 	protoc        v4.23.4
-// source: clipboard_service/clipboard_service.proto
+// source: proto/proto.proto
 
-package clipboard_service
+package proto
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -558,27 +558,27 @@ func file_clipboard_service_clipboard_service_proto_rawDescGZIP() []byte {
 
 var file_clipboard_service_clipboard_service_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_clipboard_service_clipboard_service_proto_goTypes = []interface{}{
-	(*CreateClipboardsRequest)(nil),   // 0: clipboard_service.CreateClipboardsRequest
-	(*CreateClipboardsResponse)(nil),  // 1: clipboard_service.CreateClipboardsResponse
-	(*GetClipboardsRequest)(nil),      // 2: clipboard_service.GetClipboardsRequest
-	(*GetClipboardsResponse)(nil),     // 3: clipboard_service.GetClipboardsResponse
-	(*DeleteClipboardsRequest)(nil),   // 4: clipboard_service.DeleteClipboardsRequest
-	(*DeleteClipboardsResponse)(nil),  // 5: clipboard_service.DeleteClipboardsResponse
-	(*SubscribeClipboardRequest)(nil), // 6: clipboard_service.SubscribeClipboardRequest
-	(*ClipboardMessage)(nil),          // 7: clipboard_service.ClipboardMessage
-	(*ClipboardItem)(nil),             // 8: clipboard_service.ClipboardItem
+	(*CreateClipboardsRequest)(nil),   // 0: proto.CreateClipboardsRequest
+	(*CreateClipboardsResponse)(nil),  // 1: proto.CreateClipboardsResponse
+	(*GetClipboardsRequest)(nil),      // 2: proto.GetClipboardsRequest
+	(*GetClipboardsResponse)(nil),     // 3: proto.GetClipboardsResponse
+	(*DeleteClipboardsRequest)(nil),   // 4: proto.DeleteClipboardsRequest
+	(*DeleteClipboardsResponse)(nil),  // 5: proto.DeleteClipboardsResponse
+	(*SubscribeClipboardRequest)(nil), // 6: proto.SubscribeClipboardRequest
+	(*ClipboardMessage)(nil),          // 7: proto.ClipboardMessage
+	(*ClipboardItem)(nil),             // 8: proto.ClipboardItem
 }
 var file_clipboard_service_clipboard_service_proto_depIdxs = []int32{
-	8, // 0: clipboard_service.GetClipboardsResponse.clipboards:type_name -> clipboard_service.ClipboardItem
-	8, // 1: clipboard_service.ClipboardMessage.items:type_name -> clipboard_service.ClipboardItem
-	0, // 2: clipboard_service.ClipboardService.CreateClipboards:input_type -> clipboard_service.CreateClipboardsRequest
-	2, // 3: clipboard_service.ClipboardService.GetClipboards:input_type -> clipboard_service.GetClipboardsRequest
-	6, // 4: clipboard_service.ClipboardService.SubscribeClipboard:input_type -> clipboard_service.SubscribeClipboardRequest
-	4, // 5: clipboard_service.ClipboardService.DeleteClipboards:input_type -> clipboard_service.DeleteClipboardsRequest
-	1, // 6: clipboard_service.ClipboardService.CreateClipboards:output_type -> clipboard_service.CreateClipboardsResponse
-	3, // 7: clipboard_service.ClipboardService.GetClipboards:output_type -> clipboard_service.GetClipboardsResponse
-	7, // 8: clipboard_service.ClipboardService.SubscribeClipboard:output_type -> clipboard_service.ClipboardMessage
-	5, // 9: clipboard_service.ClipboardService.DeleteClipboards:output_type -> clipboard_service.DeleteClipboardsResponse
+	8, // 0: proto.GetClipboardsResponse.clipboards:type_name -> proto.ClipboardItem
+	8, // 1: proto.ClipboardMessage.items:type_name -> proto.ClipboardItem
+	0, // 2: proto.ClipboardService.CreateClipboards:input_type -> proto.CreateClipboardsRequest
+	2, // 3: proto.ClipboardService.GetClipboards:input_type -> proto.GetClipboardsRequest
+	6, // 4: proto.ClipboardService.SubscribeClipboard:input_type -> proto.SubscribeClipboardRequest
+	4, // 5: proto.ClipboardService.DeleteClipboards:input_type -> proto.DeleteClipboardsRequest
+	1, // 6: proto.ClipboardService.CreateClipboards:output_type -> proto.CreateClipboardsResponse
+	3, // 7: proto.ClipboardService.GetClipboards:output_type -> proto.GetClipboardsResponse
+	7, // 8: proto.ClipboardService.SubscribeClipboard:output_type -> proto.ClipboardMessage
+	5, // 9: proto.ClipboardService.DeleteClipboards:output_type -> proto.DeleteClipboardsResponse
 	6, // [6:10] is the sub-list for method output_type
 	2, // [2:6] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
