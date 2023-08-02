@@ -4,9 +4,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 
 go_library(
     name = "test_delete_lib",
-    srcs = [
-        "test_delete.go",
-    ],
+    srcs = ["test_delete.go"],
     importpath = "github.com/1939323749/clipboard_server/test",
     visibility = ["//visibility:private"],
     deps = [
@@ -26,9 +24,7 @@ go_binary(
 
 go_library(
     name = "test_getclipboards_lib",
-    srcs = [
-        "test_getclipboards.go",
-    ],
+    srcs = ["test_getclipboards.go"],
     importpath = "github.com/1939323749/clipboard_server/test",
     visibility = ["//visibility:private"],
     deps = [
@@ -47,9 +43,7 @@ go_binary(
 
 go_library(
     name = "test_send_lib",
-    srcs = [
-        "test_send.go",
-    ],
+    srcs = ["test_send.go"],
     importpath = "github.com/1939323749/clipboard_server/test",
     visibility = ["//visibility:private"],
     deps = [
@@ -69,9 +63,7 @@ go_binary(
 
 go_library(
     name = "test_subscribe_lib",
-    srcs = [
-        "test_subscribe.go",
-    ],
+    srcs = ["test_subscribe.go"],
     importpath = "github.com/1939323749/clipboard_server/test",
     visibility = ["//visibility:private"],
     deps = [

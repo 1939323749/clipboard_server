@@ -2,13 +2,6 @@ load("@bazel_gazelle//:deps.bzl", "go_repository")
 
 def go_dependencies():
     go_repository(
-        name = "com_github_1939323749_clipboard_server",
-        build_file_proto_mode = "disable_global",
-        importpath = "github.com/1939323749/clipboard_server",
-        sum = "h1:mo7a/2Xo22+J3TM0cg0GmzSr9kpzAdYxF0wa9OGKGW0=",
-        version = "v0.0.0-20230801143644-54b5e2665d2f",
-    )
-    go_repository(
         name = "com_github_census_instrumentation_opencensus_proto",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/census-instrumentation/opencensus-proto",
@@ -194,8 +187,8 @@ def go_dependencies():
         name = "org_golang_google_protobuf",
         build_file_proto_mode = "disable_global",
         importpath = "google.golang.org/protobuf",
-        sum = "h1:kPPoIgf3TsEvrm0PFe15JQ+570QVxYzEvvHqChK+cng=",
-        version = "v1.30.0",
+        sum = "h1:g0LDEJHgrBl9N9r17Ru3sqWhkIx2NB67okBHPwC7hs8=",
+        version = "v1.31.0",
     )
     go_repository(
         name = "org_golang_x_crypto",
