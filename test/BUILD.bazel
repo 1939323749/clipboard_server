@@ -78,3 +78,22 @@ go_binary(
     embed = [":test_subscribe_lib"],
     visibility = ["//visibility:public"],
 )
+
+# test_bidirectional_stream
+
+go_library(
+    name = "test_bidirectional_stream_lib",
+    srcs = ["test_bidirectional_stream.go"],
+    importpath = "github.com/1939323749/clipboard_server/test",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//proto",
+        "@org_golang_google_grpc//:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "test_bidirectional_stream",
+    embed = [":test_bidirectional_stream_lib"],
+    visibility = ["//visibility:public"],
+)

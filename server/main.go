@@ -128,3 +128,19 @@ func (s *server) DeleteClipboards(ctx context.Context, in *ClipboardService.Dele
 	}
 	return &ClipboardService.DeleteClipboardsResponse{Success: true}, nil
 }
+
+func (s *server) StreamMessage(stream ClipboardService.ClipboardService_StreamMessageServer) error {
+	for {
+		req, err := stream.Recv()
+		if err != nil {
+			return err
+		}
+		err = stream.Send(&ClipboardService.StreamMsg{Msg: "Stream beginning!"})
+		for i := 0; i < 10; i++ {
+			err = stream.Send(&ClipboardService.StreamMsg{Msg: "hello " + req.Msg})
+			if err != nil {
+				return err
+			}
+		}
+	}
+}
