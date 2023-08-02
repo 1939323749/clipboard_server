@@ -26,7 +26,7 @@ type StringItem struct {
 	ID        string    `bson:"_id,omitempty"`
 	Value     string    `bson:"value,omitempty"`
 	CreatedAt time.Time `bson:"createdAt,omitempty"`
-	DeviceID  string    `bson:"deviceID,omitempty"`
+	DeviceID  string    `bson:"deviceID"`
 }
 
 var collection = "clipboards"
@@ -43,7 +43,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	s := grpc.NewServer()
+	opts := []grpc.ServerOption{
+		grpc.UnaryInterceptor(unaryInterceptor),
+		grpc.StreamInterceptor(streamInterceptor),
+	}
+
+	s := grpc.NewServer(opts...)
 	ClipboardService.RegisterClipboardServiceServer(s, &server{db: mongoClient.Database("strings")})
 
 	reflection.Register(s)
@@ -53,6 +58,16 @@ func main() {
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
+}
+
+func unaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	log.Printf("unary interceptor: %v", info.FullMethod)
+	return handler(ctx, req)
+}
+
+func streamInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+	log.Printf("stream interceptor: %v", info.FullMethod)
+	return handler(srv, ss)
 }
 
 func (s *server) CreateClipboards(ctx context.Context, in *ClipboardService.CreateClipboardsRequest) (*ClipboardService.CreateClipboardsResponse, error) {

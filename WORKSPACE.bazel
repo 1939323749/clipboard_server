@@ -58,3 +58,15 @@ git_repository(
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 protobuf_deps()
+
+# protoc-gen-validate
+git_repository(
+    name = "com_envoyproxy_protoc_gen_validate",
+    remote = "https://github.com/bufbuild/protoc-gen-validate",
+    tag = PROTOC_GEN_VALIDATE_VERSION,
+)
+
+load("@com_envoyproxy_protoc_gen_validate//bazel:repositories.bzl", "pgv_dependencies")
+load("@com_envoyproxy_protoc_gen_validate//:dependencies.bzl", "go_third_party")
+
+pgv_dependencies()

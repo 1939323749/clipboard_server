@@ -16,7 +16,9 @@ func main() {
 
 	client := ClipboardService.NewClipboardServiceClient(conn)
 
-	stream, err := client.SubscribeClipboard(context.Background(), &ClipboardService.SubscribeClipboardRequest{})
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	stream, err := client.SubscribeClipboard(ctx, &ClipboardService.SubscribeClipboardRequest{})
 	if err != nil {
 		log.Fatalf("Error subscribing: %v", err)
 	}
