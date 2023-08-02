@@ -5,6 +5,7 @@ import (
 	ClipboardService "github.com/1939323749/clipboard_server/proto"
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"log"
 	"time"
 )
@@ -50,7 +51,27 @@ func main() {
 			log.Fatalf("Error getting clipboards: %v", err)
 		}
 		for _, item := range getClipboardsResponse.Clipboards {
+			log.Printf("Got clipboard: ID=%s, Content=%s, DeviceID=%s", item.Id, item.Content, item.DeviceId)
+		}
+		time.Sleep(1 * time.Second)
+		mask := make([]*fieldmaskpb.FieldMask, 1)
+		mask[0] = &fieldmaskpb.FieldMask{Paths: []string{"content"}}
+		maskClipboardsResponse, err := client.GetClipboards(context.Background(), &ClipboardService.GetClipboardsRequest{Ids: []string{"1", "2"}, Mask: mask})
+		if err != nil {
+			log.Fatalf("Error getting clipboards: %v", err)
+		}
+		for _, item := range maskClipboardsResponse.Clipboards {
 			log.Printf("Got clipboard: ID=%s, Content=%s", item.Id, item.Content)
+		}
+		time.Sleep(1 * time.Second)
+		mask = make([]*fieldmaskpb.FieldMask, 1)
+		mask[0] = &fieldmaskpb.FieldMask{Paths: []string{"device_id"}}
+		maskClipboardsResponse, err = client.GetClipboards(context.Background(), &ClipboardService.GetClipboardsRequest{Ids: []string{"1", "2"}, Mask: mask})
+		if err != nil {
+			log.Fatalf("Error getting clipboards: %v", err)
+		}
+		for _, item := range maskClipboardsResponse.Clipboards {
+			log.Printf("Got clipboard: ID=%s, deviceID=%s", item.Id, item.DeviceId)
 		}
 		time.Sleep(1 * time.Second)
 		deleteClipboardsResponse, err := client.DeleteClipboards(context.Background(), &ClipboardService.DeleteClipboardsRequest{Ids: createClipboardsResponse.Ids})

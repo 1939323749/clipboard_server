@@ -28,7 +28,7 @@ func main() {
 			if err != nil {
 				log.Fatalf("Error receiving: %v", err)
 			}
-			log.Printf("Received: %s", in)
+			log.Printf("Received: %s,time: %s", in.Msg, in.Timestamp.AsTime().Format(time.RFC3339))
 		}
 	}()
 	ticker := time.NewTicker(5 * time.Second)

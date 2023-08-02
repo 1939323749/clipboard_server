@@ -97,3 +97,22 @@ go_binary(
     embed = [":test_bidirectional_stream_lib"],
     visibility = ["//visibility:public"],
 )
+
+# test_update
+
+go_library(
+    name = "test_update_lib",
+    srcs = ["test_update.go"],
+    importpath = "github.com/1939323749/clipboard_server/test",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//proto",
+        "@org_golang_google_grpc//:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "test_update",
+    embed = [":test_update_lib"],
+    visibility = ["//visibility:public"],
+)

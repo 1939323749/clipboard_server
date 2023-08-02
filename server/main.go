@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"log"
 	"net"
 	_ "net/http/pprof"
@@ -90,7 +91,20 @@ func (s *server) GetClipboards(ctx context.Context, in *ClipboardService.GetClip
 		if err != nil {
 			return nil, err
 		}
-		clipboardItems = append(clipboardItems, &ClipboardService.ClipboardItem{Id: item.ID, Content: item.Value, DeviceId: item.DeviceID})
+		if in.GetMask() != nil {
+			clipboardItem := &ClipboardService.ClipboardItem{}
+			fm := in.GetMask()[0]
+			if fm.GetPaths()[0] == "content" {
+				clipboardItem.Content = item.Value
+			}
+			if fm.GetPaths()[0] == "device_id" {
+				clipboardItem.DeviceId = item.DeviceID
+			}
+			clipboardItem.Id = item.ID
+			clipboardItems = append(clipboardItems, clipboardItem)
+		} else {
+			clipboardItems = append(clipboardItems, &ClipboardService.ClipboardItem{Id: item.ID, Content: item.Value, DeviceId: item.DeviceID})
+		}
 	}
 
 	if err := cursor.Err(); err != nil {
@@ -135,12 +149,26 @@ func (s *server) StreamMessage(stream ClipboardService.ClipboardService_StreamMe
 		if err != nil {
 			return err
 		}
-		err = stream.Send(&ClipboardService.StreamMsg{Msg: "Stream beginning!"})
+		err = stream.Send(&ClipboardService.StreamMsg{Msg: "Stream beginning!", Timestamp: timestamppb.New(time.Now())})
 		for i := 0; i < 10; i++ {
-			err = stream.Send(&ClipboardService.StreamMsg{Msg: "hello " + req.Msg})
+			err = stream.Send(&ClipboardService.StreamMsg{Msg: "hello " + req.Msg, Timestamp: timestamppb.New(time.Now())})
 			if err != nil {
 				return err
 			}
 		}
 	}
+}
+
+func (s *server) Update(ctx context.Context, in *ClipboardService.UpdateRequest) (*ClipboardService.UpdateResponse, error) {
+	stringCollection := s.db.Collection(collection)
+	_, err := stringCollection.UpdateOne(ctx, bson.M{"_id": in.Id}, bson.M{"$set": bson.M{"value": in.NewContent}})
+	if err != nil {
+		return &ClipboardService.UpdateResponse{Success: false}, err
+	}
+	for _, subscriber := range s.subscribers {
+		if err := subscriber.Send(&ClipboardService.ClipboardMessage{Items: []*ClipboardService.ClipboardItem{{Id: in.Id, Content: in.NewContent}}, Operation: "update"}); err != nil {
+			log.Printf("Failed to send string to subscriber: %v", err)
+		}
+	}
+	return &ClipboardService.UpdateResponse{Success: true}, nil
 }
