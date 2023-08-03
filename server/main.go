@@ -176,7 +176,9 @@ func (s *server) StreamMessage(stream ClipboardService.ClipboardService_StreamMe
 
 func (s *server) Update(ctx context.Context, in *ClipboardService.UpdateRequest) (*ClipboardService.UpdateResponse, error) {
 	stringCollection := s.db.Collection(collection)
-	_, err := stringCollection.UpdateOne(ctx, bson.M{"_id": in.Id}, bson.M{"$set": bson.M{"value": in.NewContent}})
+	log.Printf("Updating %v", in.Id)
+	log.Printf("Updating %v", in.NewContent)
+	_, err := stringCollection.UpdateOne(ctx, bson.M{"_id": in.Id}, bson.M{"$set": bson.M{"Value": in.NewContent}})
 	if err != nil {
 		return &ClipboardService.UpdateResponse{Success: false}, err
 	}
