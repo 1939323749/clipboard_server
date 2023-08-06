@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	ClipboardService "github.com/1939323749/clipboard_server/proto"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -12,6 +13,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"log"
 	"net"
+	"net/http"
 	_ "net/http/pprof"
 	"time"
 )
@@ -54,6 +56,10 @@ func main() {
 	reflection.Register(s)
 
 	log.Printf("serving on %v", lis.Addr())
+
+	go func() {
+		RESTfulServer()
+	}()
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
@@ -188,4 +194,41 @@ func (s *server) Update(ctx context.Context, in *ClipboardService.UpdateRequest)
 		}
 	}
 	return &ClipboardService.UpdateResponse{Success: true}, nil
+}
+
+func RESTfulServer() {
+	const token = "clipboard"
+	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("could not connect: %v", err)
+	}
+	var client = ClipboardService.NewClipboardServiceClient(conn)
+	http.HandleFunc("/api/create", func(writer http.ResponseWriter, request *http.Request) {
+		if request.Method == "POST" {
+			if request.Header.Get("Content-Type") != "application/json" {
+				http.Error(writer, "Content-Type header is not application/json", http.StatusUnsupportedMediaType)
+				return
+			}
+			if request.Header.Get("Token") != token {
+				http.Error(writer, "Invalid token", http.StatusUnauthorized)
+				return
+			}
+			var clipboardItem ClipboardService.ClipboardItem
+			err := json.NewDecoder(request.Body).Decode(&clipboardItem)
+			if err != nil {
+				http.Error(writer, err.Error(), http.StatusBadRequest)
+				return
+			}
+			_, err = client.CreateClipboards(context.Background(), &ClipboardService.CreateClipboardsRequest{Values: []string{clipboardItem.Content}, DeviceId: clipboardItem.DeviceId})
+			if err != nil {
+				http.Error(writer, err.Error(), http.StatusBadRequest)
+				return
+			}
+			writer.WriteHeader(http.StatusCreated)
+		} else {
+			http.Error(writer, "Invalid request method", http.StatusMethodNotAllowed)
+		}
+	})
+	log.Printf("Starting server on port 50052")
+	log.Fatal(http.ListenAndServe(":50052", nil))
 }
