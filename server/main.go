@@ -156,7 +156,7 @@ func (s *server) DeleteClipboards(ctx context.Context, in *ClipboardService.Dele
 			return &ClipboardService.DeleteClipboardsResponse{Success: false}, err
 		}
 		for _, subscriber := range s.subscribers {
-			if err := subscriber.Send(&ClipboardService.ClipboardMessage{Items: []*ClipboardService.ClipboardItem{{Id: id}}, Operation: "delete"}); err != nil {
+			if err := subscriber.Send(&ClipboardService.ClipboardMessage{Items: []*ClipboardService.ClipboardItem{{Id: id, DeviceId: in.DeviceId}}, Operation: "delete"}); err != nil {
 				log.Printf("Failed to send string to subscriber: %v", err)
 			}
 		}
@@ -189,7 +189,7 @@ func (s *server) Update(ctx context.Context, in *ClipboardService.UpdateRequest)
 		return &ClipboardService.UpdateResponse{Success: false}, err
 	}
 	for _, subscriber := range s.subscribers {
-		if err := subscriber.Send(&ClipboardService.ClipboardMessage{Items: []*ClipboardService.ClipboardItem{{Id: in.Id, Content: in.NewContent}}, Operation: "update"}); err != nil {
+		if err := subscriber.Send(&ClipboardService.ClipboardMessage{Items: []*ClipboardService.ClipboardItem{{Id: in.Id, Content: in.NewContent, DeviceId: in.DeviceId}}, Operation: "update"}); err != nil {
 			log.Printf("Failed to send string to subscriber: %v", err)
 		}
 	}
