@@ -17,7 +17,7 @@ import (
 var ignoreDeviceIdList = []string{"macOS_popclip"}
 
 func main() {
-	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithUnaryInterceptor(retryInterceptor))
+	conn, err := grpc.Dial("43.143.170.60:50051", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithUnaryInterceptor(retryInterceptor))
 
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -47,6 +47,11 @@ func main() {
 			}
 
 			log.Printf("Received: %s", in)
+			for _, ignoreDeviceId := range ignoreDeviceIdList {
+				if in.Items[0].DeviceId == ignoreDeviceId {
+					return
+				}
+			}
 			// stdin|pbcopy
 			cmd := exec.Command("pbcopy")
 			stdin, err := cmd.StdinPipe()
@@ -63,11 +68,6 @@ func main() {
 				err := cmd.Start()
 				if err != nil {
 					return
-				}
-				for _, ignoreDeviceId := range ignoreDeviceIdList {
-					if in.Items[0].DeviceId == ignoreDeviceId {
-						return
-					}
 				}
 				switch in.Operation {
 				case "create":
