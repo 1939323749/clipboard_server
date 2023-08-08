@@ -4,14 +4,18 @@ import (
 	"context"
 	ClipboardService "github.com/1939323749/clipboard_server/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 	"io"
 	"log"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 func main() {
-	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithUnaryInterceptor(retryInterceptor))
 
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -61,4 +65,23 @@ func main() {
 		}
 	}()
 	select {}
+}
+
+func retryInterceptor(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) (err error) {
+	for i := 0; i < 3; i++ {
+		err = invoker(ctx, method, req, reply, cc, opts...)
+		if err == nil {
+			return
+		}
+		st, ok := status.FromError(err)
+		if !ok || st.Code() != codes.Unavailable {
+			return err
+		}
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(1 * time.Second):
+		}
+	}
+	return nil
 }

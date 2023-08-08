@@ -5,12 +5,14 @@ import (
 	ClipboardService "github.com/1939323749/clipboard_server/proto"
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/backoff"
+	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"time"
 )
 
 func main() {
-	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithConnectParams(grpc.ConnectParams{Backoff: backoff.Config{MaxDelay: 5}}))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
