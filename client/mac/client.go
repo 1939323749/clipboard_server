@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+var ignoreDeviceIdList = []string{"macOS_popclip"}
+
 func main() {
 	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithUnaryInterceptor(retryInterceptor))
 
@@ -21,7 +23,12 @@ func main() {
 		log.Fatalf("did not connect: %v", err)
 	}
 
-	defer conn.Close()
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			return
+		}
+	}(conn)
 
 	client := ClipboardService.NewClipboardServiceClient(conn)
 
@@ -57,9 +64,30 @@ func main() {
 				if err != nil {
 					return
 				}
-				_, err = stdin.Write([]byte(strings.Join([]string{in.Items[0].Content}, "")))
-				if err != nil {
-					return
+				for _, ignoreDeviceId := range ignoreDeviceIdList {
+					if in.Items[0].DeviceId == ignoreDeviceId {
+						return
+					}
+				}
+				switch in.Operation {
+				case "create":
+					{
+						_, err = stdin.Write([]byte(strings.Join([]string{in.Items[0].Content}, "")))
+						if err != nil {
+							return
+						}
+					}
+				case "update":
+					{
+						_, err = stdin.Write([]byte(strings.Join([]string{in.Items[0].Content}, "")))
+						if err != nil {
+							return
+						}
+					}
+				case "delete":
+					{
+						return
+					}
 				}
 			}()
 		}
