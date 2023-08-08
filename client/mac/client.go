@@ -17,7 +17,7 @@ import (
 var ignoreDeviceIdList = []string{"macOS_popclip"}
 
 func main() {
-	conn, err := grpc.Dial("43.143.170.60:50051", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithUnaryInterceptor(retryInterceptor))
+	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithUnaryInterceptor(retryInterceptor))
 
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -43,7 +43,7 @@ func main() {
 			in, err := stream.Recv()
 
 			if err != nil {
-				log.Fatalf("Error receiving: %v", err)
+				log.Printf("Error receiving: %v", err)
 			}
 
 			log.Printf("Received: %s", in)
@@ -86,6 +86,10 @@ func main() {
 					}
 				case "delete":
 					{
+						err := cmd.Wait()
+						if err != nil {
+							return
+						}
 						return
 					}
 				}
