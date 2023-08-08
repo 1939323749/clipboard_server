@@ -116,3 +116,23 @@ go_binary(
     embed = [":test_update_lib"],
     visibility = ["//visibility:public"],
 )
+
+# test_client
+
+go_library(
+    name = "test_client_lib",
+    srcs = ["test_client.go"],
+    importpath = "github.com/1939323749/clipboard_server/test",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//proto",
+        "@com_github_google_uuid//:uuid",
+        "@org_golang_google_grpc//:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "test_client",
+    embed = [":test_client_lib"],
+    visibility = ["//visibility:public"],
+)

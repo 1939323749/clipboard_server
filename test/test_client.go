@@ -74,7 +74,7 @@ func main() {
 			log.Printf("Got clipboard: ID=%s, deviceID=%s", item.Id, item.DeviceId)
 		}
 		time.Sleep(1 * time.Second)
-		deleteClipboardsResponse, err := client.DeleteClipboards(context.Background(), &ClipboardService.DeleteClipboardsRequest{Ids: createClipboardsResponse.Ids})
+		deleteClipboardsResponse, err := client.DeleteClipboards(context.Background(), &ClipboardService.DeleteClipboardsRequest{Ids: createClipboardsResponse.Ids, DeviceId: randomId.String()})
 		if err != nil {
 			log.Fatalf("Error deleting clipboards: %v", err)
 		}
@@ -82,6 +82,16 @@ func main() {
 			log.Printf("Deleted clipboards: %v", createClipboardsResponse.Ids)
 		} else {
 			log.Printf("Failed to delete clipboards: %v", createClipboardsResponse.Ids)
+		}
+		time.Sleep(1 * time.Second)
+		updateResponse, err := client.Update(context.Background(), &ClipboardService.UpdateRequest{Id: createClipboardsResponse.Ids[0], NewContent: "Hello World", DeviceId: randomId.String()})
+		if err != nil {
+			log.Fatalf("Error updating clipboard: %v", err)
+		}
+		if updateResponse.Success {
+			log.Printf("Updated clipboard: %v", createClipboardsResponse.Ids[0])
+		} else {
+			log.Printf("Failed to update clipboard: %v", createClipboardsResponse.Ids[0])
 		}
 	}
 }
