@@ -1,0 +1,19 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "check_alive_lib",
+    srcs = ["main.go"],
+    importpath = "github.com/1939323749/clipboard_server/check_alive",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//proto",
+        "@org_golang_google_grpc//:go_default_library",
+        "@org_golang_google_grpc//credentials/insecure",
+    ],
+)
+
+go_binary(
+    name = "check_alive",
+    embed = [":check_alive_lib"],
+    visibility = ["//visibility:public"],
+)

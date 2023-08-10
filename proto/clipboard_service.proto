@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package proto;
 
+import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/field_mask.proto";
 
@@ -14,6 +15,7 @@ service ClipboardService {
   rpc DeleteClipboards (DeleteClipboardsRequest) returns (DeleteClipboardsResponse) {}
   rpc StreamMessage (stream StreamMsg) returns (stream StreamMsg) {}
   rpc Update (UpdateRequest) returns (UpdateResponse) {}
+  rpc CheckConnectivity (stream Alive) returns (stream Alive) {}
 }
 
 message CreateClipboardsRequest {
@@ -70,3 +72,5 @@ message StreamMsg{
   string msg = 1;
   google.protobuf.Timestamp timestamp = 2;
 }
+
+message Alive {}

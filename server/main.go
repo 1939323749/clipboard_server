@@ -168,7 +168,7 @@ func (s *server) StreamMessage(stream ClipboardService.ClipboardService_StreamMe
 	for {
 		req, err := stream.Recv()
 		if err != nil {
-			return err
+			log.Printf("error receiving from stream: %v", err)
 		}
 		err = stream.Send(&ClipboardService.StreamMsg{Msg: "Stream beginning!", Timestamp: timestamppb.New(time.Now())})
 		for i := 0; i < 10; i++ {
@@ -176,6 +176,20 @@ func (s *server) StreamMessage(stream ClipboardService.ClipboardService_StreamMe
 			if err != nil {
 				return err
 			}
+		}
+	}
+}
+
+func (s *server) CheckConnectivity(stream ClipboardService.ClipboardService_CheckConnectivityServer) error {
+	for {
+		_, err := stream.Recv()
+		if err != nil {
+			log.Printf("error receiving from stream: %v", err)
+			return nil
+		}
+		err = stream.Send(&ClipboardService.Alive{})
+		if err != nil {
+			return nil
 		}
 	}
 }
