@@ -15,6 +15,15 @@ bazel run //test:test_subscribe
 
 ## for development
 
+### build
+
+```bash
+bazel build //server:server
+```
+cross-compiling
+```bash
+bazel build --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 server
+````
 ### generate proto files
 
 **protoc** needs to be installed
