@@ -12,10 +12,24 @@ import (
 	"time"
 )
 
+type SETTING struct {
+	tryConnectInterval time.Duration
+	server             string
+	port               string
+	checkAliveInterval time.Duration
+}
+
 var ignoreDeviceIdList = []string{"macOS_popclip"}
 
 func main() {
-	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	setting := SETTING{
+		tryConnectInterval: 5 * time.Second,
+		server:             "localhost",
+		port:               "50051",
+		checkAliveInterval: 5 * time.Second,
+	}
+
+	conn, err := grpc.Dial(setting.server+":"+setting.port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -38,7 +52,7 @@ func main() {
 	}
 
 	go func() {
-		ticker := time.NewTicker(5 * time.Second)
+		ticker := time.NewTicker(setting.checkAliveInterval)
 		for range ticker.C {
 			if stream == nil {
 				continue
@@ -48,8 +62,8 @@ func main() {
 				log.Printf("Error sending: %v", err)
 				go func() {
 					for {
-						time.Sleep(1 * time.Second)
-						conn, err = grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+						time.Sleep(setting.tryConnectInterval)
+						conn, err = grpc.Dial(setting.server+":"+setting.port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 						if err != nil {
 							log.Printf("did not connect: %v", err)
 						}
