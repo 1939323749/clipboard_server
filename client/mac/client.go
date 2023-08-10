@@ -40,20 +40,27 @@ func main() {
 	go func() {
 		ticker := time.NewTicker(5 * time.Second)
 		for range ticker.C {
+			if stream == nil {
+				continue
+			}
 			err := alive.Send(&ClipboardService.Alive{})
 			if err != nil {
 				log.Printf("Error sending: %v", err)
-				time.Sleep(1 * time.Second)
-				conn, err = grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
-				if err != nil {
-					log.Printf("did not connect: %v", err)
-				}
-				client = ClipboardService.NewClipboardServiceClient(conn)
-				stream, err = client.SubscribeClipboard(context.Background(), &ClipboardService.SubscribeClipboardRequest{})
-				alive, err = client.CheckConnectivity(context.Background())
-				if err != nil {
-					log.Printf("Error subscribing: %v", err)
-				}
+				go func() {
+					for {
+						time.Sleep(1 * time.Second)
+						conn, err = grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+						if err != nil {
+							log.Printf("did not connect: %v", err)
+						}
+						client = ClipboardService.NewClipboardServiceClient(conn)
+						stream, err = client.SubscribeClipboard(context.Background(), &ClipboardService.SubscribeClipboardRequest{})
+						alive, err = client.CheckConnectivity(context.Background())
+						if err != nil {
+							log.Printf("Error subscribing: %v", err)
+						}
+					}
+				}()
 				continue
 			}
 			_, err = alive.Recv()
@@ -67,6 +74,9 @@ func main() {
 
 	go func() {
 		for {
+			if stream == nil {
+				continue
+			}
 			in, err := stream.Recv()
 			if err != nil {
 				log.Printf("Error receiving: %v", err)
