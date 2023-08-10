@@ -4,9 +4,7 @@ import (
 	"context"
 	ClipboardService "github.com/1939323749/clipboard_server/proto"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/status"
 	"io"
 	"log"
 	"os/exec"
@@ -17,7 +15,7 @@ import (
 var ignoreDeviceIdList = []string{"macOS_popclip"}
 
 func main() {
-	conn, err := grpc.Dial("43.143.170.60:50051", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithUnaryInterceptor(retryInterceptor))
+	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -33,17 +31,47 @@ func main() {
 	client := ClipboardService.NewClipboardServiceClient(conn)
 
 	stream, err := client.SubscribeClipboard(context.Background(), &ClipboardService.SubscribeClipboardRequest{})
+	alive, err := client.CheckConnectivity(context.Background())
 
 	if err != nil {
 		log.Fatalf("Error subscribing: %v", err)
 	}
 
 	go func() {
-		for {
-			in, err := stream.Recv()
-
+		ticker := time.NewTicker(5 * time.Second)
+		for range ticker.C {
+			err := alive.Send(&ClipboardService.Alive{})
+			if err != nil {
+				log.Printf("Error sending: %v", err)
+				time.Sleep(1 * time.Second)
+				conn, err = grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+				if err != nil {
+					log.Printf("did not connect: %v", err)
+				}
+				client = ClipboardService.NewClipboardServiceClient(conn)
+				stream, err = client.SubscribeClipboard(context.Background(), &ClipboardService.SubscribeClipboardRequest{})
+				alive, err = client.CheckConnectivity(context.Background())
+				if err != nil {
+					log.Printf("Error subscribing: %v", err)
+				}
+				continue
+			}
+			_, err = alive.Recv()
 			if err != nil {
 				log.Printf("Error receiving: %v", err)
+			} else {
+				log.Printf("Alive")
+			}
+		}
+	}()
+
+	go func() {
+		for {
+			in, err := stream.Recv()
+			if err != nil {
+				log.Printf("Error receiving: %v", err)
+				time.Sleep(1 * time.Second)
+				continue
 			}
 
 			log.Printf("Received: %s", in)
@@ -97,23 +125,4 @@ func main() {
 		}
 	}()
 	select {}
-}
-
-func retryInterceptor(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) (err error) {
-	for i := 0; i < 3; i++ {
-		err = invoker(ctx, method, req, reply, cc, opts...)
-		if err == nil {
-			return
-		}
-		st, ok := status.FromError(err)
-		if !ok || st.Code() != codes.Unavailable {
-			return err
-		}
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-time.After(1 * time.Second):
-		}
-	}
-	return nil
 }
