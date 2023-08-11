@@ -51,32 +51,58 @@ func main() {
 		log.Fatalf("Error subscribing: %v", err)
 	}
 
+	status := make(chan bool)
+
 	go func() {
 		ticker := time.NewTicker(setting.checkAliveInterval)
+
 		for range ticker.C {
 			if stream == nil {
 				continue
 			}
+
 			err := alive.Send(&ClipboardService.Alive{})
 			if err != nil {
+				status <- false
 				log.Printf("Error sending: %v", err)
+
 				go func() {
 					for {
 						time.Sleep(setting.tryConnectInterval)
 						conn, err = grpc.Dial(setting.server+":"+setting.port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 						if err != nil {
 							log.Printf("did not connect: %v", err)
+							continue
 						}
+
 						client = ClipboardService.NewClipboardServiceClient(conn)
 						stream, err = client.SubscribeClipboard(context.Background(), &ClipboardService.SubscribeClipboardRequest{})
-						alive, err = client.CheckConnectivity(context.Background())
 						if err != nil {
 							log.Printf("Error subscribing: %v", err)
+							continue
 						}
+
+						alive, err = client.CheckConnectivity(context.Background())
+						if err != nil {
+							log.Printf("Error checking connectivity: %v", err)
+							continue
+						}
+
+						status <- true
+						return
 					}
 				}()
-				continue
 			}
+
+			select {
+			case ok := <-status:
+				if ok {
+					break // reconnect successful, continue the loop
+				}
+			default:
+				// no reconnection attempt yet, continue the loop
+			}
+
 			_, err = alive.Recv()
 			if err != nil {
 				log.Printf("Error receiving: %v", err)
