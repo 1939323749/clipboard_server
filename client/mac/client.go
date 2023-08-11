@@ -24,7 +24,7 @@ var ignoreDeviceIdList = []string{"macOS_popclip", "ai"}
 func main() {
 	setting := SETTING{
 		tryConnectInterval: 5 * time.Second,
-		server:             "43.143.170.60",
+		server:             "localhost",
 		port:               "50051",
 		checkAliveInterval: 5 * time.Second,
 	}
@@ -48,6 +48,17 @@ func main() {
 
 	stream, err := client.SubscribeClipboard(context.Background(), &ClipboardService.SubscribeClipboardRequest{})
 	alive, err := client.CheckConnectivity(context.Background())
+
+	defer func() {
+		err := stream.CloseSend()
+		if err != nil {
+			return
+		}
+		err = alive.CloseSend()
+		if err != nil {
+			return
+		}
+	}()
 
 	if err != nil {
 		log.Fatalf("Error subscribing: %v", err)
@@ -92,14 +103,22 @@ func main() {
 			startRetry := !<-status
 			// if startRetry is true, start retrying
 			if startRetry {
+				if stream != nil {
+					err := stream.CloseSend()
+					if err != nil {
+						log.Printf("Error closing stream: %v", err)
+					}
+				}
+				if alive != nil {
+					err := alive.CloseSend()
+					if err != nil {
+						log.Printf("Error closing alive: %v", err)
+					}
+				}
 				go func() {
 					for {
+						// try to reconnect
 						time.Sleep(setting.tryConnectInterval)
-						conn, err = grpc.Dial(setting.server+":"+setting.port, grpc.WithTransportCredentials(insecure.NewCredentials()))
-						if err != nil {
-							log.Printf("did not connect: %v", err)
-							continue
-						}
 
 						client = ClipboardService.NewClipboardServiceClient(conn)
 						stream, err = client.SubscribeClipboard(context.Background(), &ClipboardService.SubscribeClipboardRequest{})
