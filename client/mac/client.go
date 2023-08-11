@@ -19,15 +19,17 @@ type SETTING struct {
 	checkAliveInterval time.Duration
 }
 
-var ignoreDeviceIdList = []string{"macOS_popclip"}
+var ignoreDeviceIdList = []string{"macOS_popclip", "ai"}
 
 func main() {
 	setting := SETTING{
 		tryConnectInterval: 5 * time.Second,
-		server:             "localhost",
+		server:             "43.143.170.60",
 		port:               "50051",
 		checkAliveInterval: 5 * time.Second,
 	}
+
+	status := make(chan bool)
 
 	conn, err := grpc.Dial(setting.server+":"+setting.port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
@@ -51,8 +53,6 @@ func main() {
 		log.Fatalf("Error subscribing: %v", err)
 	}
 
-	status := make(chan bool)
-
 	go func() {
 		ticker := time.NewTicker(setting.checkAliveInterval)
 
@@ -65,7 +65,33 @@ func main() {
 			if err != nil {
 				status <- false
 				log.Printf("Error sending: %v", err)
+				continue
+			}
 
+			select {
+			case ok := <-status:
+				if ok {
+					break // reconnect successful, continue the loop
+				}
+			default:
+				// no reconnection attempt yet, continue the loop
+			}
+
+			_, err = alive.Recv()
+			if err != nil {
+				log.Printf("Error receiving: %v", err)
+			} else {
+				log.Printf("Alive")
+			}
+		}
+	}()
+
+	go func() {
+		// listen to retry signal
+		for {
+			startRetry := !<-status
+			// if startRetry is true, start retrying
+			if startRetry {
 				go func() {
 					for {
 						time.Sleep(setting.tryConnectInterval)
@@ -89,32 +115,17 @@ func main() {
 						}
 
 						status <- true
+						// if reconnection is successful, stop this goroutine
 						return
 					}
 				}()
-			}
-
-			select {
-			case ok := <-status:
-				if ok {
-					break // reconnect successful, continue the loop
-				}
-			default:
-				// no reconnection attempt yet, continue the loop
-			}
-
-			_, err = alive.Recv()
-			if err != nil {
-				log.Printf("Error receiving: %v", err)
-			} else {
-				log.Printf("Alive")
 			}
 		}
 	}()
 
 	go func() {
 		for {
-			if stream == nil {
+			if stream == nil || alive == nil || conn == nil {
 				continue
 			}
 			in, err := stream.Recv()
