@@ -120,7 +120,6 @@ func main() {
 						// try to reconnect
 						time.Sleep(setting.tryConnectInterval)
 
-						client = ClipboardService.NewClipboardServiceClient(conn)
 						stream, err = client.SubscribeClipboard(context.Background(), &ClipboardService.SubscribeClipboardRequest{})
 						if err != nil {
 							log.Printf("Error subscribing: %v", err)
@@ -144,7 +143,7 @@ func main() {
 
 	go func() {
 		for {
-			if stream == nil || alive == nil || conn == nil {
+			if stream == nil || alive == nil {
 				continue
 			}
 			in, err := stream.Recv()
