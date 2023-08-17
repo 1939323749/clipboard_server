@@ -183,6 +183,7 @@ func main() {
 						if err != nil {
 							return
 						}
+						return
 					}
 				case "update":
 					{
@@ -190,6 +191,7 @@ func main() {
 						if err != nil {
 							return
 						}
+						return
 					}
 				case "delete":
 					{
