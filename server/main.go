@@ -141,7 +141,8 @@ func (s *server) SubscribeClipboard(in *ClipboardService.SubscribeClipboardReque
 
 	for i, subscriber := range s.subscribers {
 		if subscriber == stream {
-			s.subscribers = append(s.subscribers[:i], s.subscribers[i+1:]...)
+			copy(s.subscribers[i:], s.subscribers[i+1:])
+			s.subscribers = s.subscribers[:len(s.subscribers)-1]
 			break
 		}
 	}
