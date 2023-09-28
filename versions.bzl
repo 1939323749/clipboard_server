@@ -1,23 +1,18 @@
-"""Defines the dependencies' versions.
-
-This allow us to keep the book generic and update cheaply the versions.
-"""
-
 # Go
 # The last version can be found here: https://go.dev/dl/
 # Note: You do not need to download the last version,
 #       Just update this variable. Bazel will download it for you.
-GO_VERSION = "1.20.7"
+GO_VERSION = "1.20.5"
 
 # Rules_go
 # The last version and SHA256 can be found here: https://github.com/bazelbuild/rules_go/releases
-RULES_GO_VERSION = "v0.39.1"
-RULES_GO_SHA256 = "6dc2da7ab4cf5d7bfc7c949776b1b7c733f05e56edc4bcd9022bb249d2e2a996"
+RULES_GO_VERSION = "v0.41.0"
+RULES_GO_SHA256 = "278b7ff5a826f3dc10f04feaf0b70d48b68748ccd512d7f98bf442077f043fe3"
 
 # Gazelle
 # The last version and SHA256 can be found here: https://github.com/bazelbuild/bazel-gazelle/blob/master/README.rst
-GAZELLE_VERSION = "v0.30.0"
-GAZELLE_SHA256 = "727f3e4edd96ea20c29e8c2ca9e8d2af724d8c7778e7923a854b2c80952bc405"
+GAZELLE_VERSION = "v0.33.0"
+GAZELLE_SHA256 = "d3fa66a39028e97d76f9e2db8f1b0c11c099e8e01bf363a923074784e451f809"
 
 # Protobuf
 # The last version can be found here: https://github.com/protocolbuffers/protobuf/releases
