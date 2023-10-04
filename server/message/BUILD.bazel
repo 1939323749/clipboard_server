@@ -1,0 +1,13 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "message",
+    srcs = [
+        "command.go",
+        "message.go",
+        "response.go",
+        "types.go",
+    ],
+    importpath = "github.com/1939323749/clipboard_server/server/message",
+    visibility = ["//visibility:public"],
+)
