@@ -31,6 +31,8 @@ func main() {
 
 	status := make(chan bool)
 
+	ctx := context.Background()
+
 	conn, err := grpc.Dial(setting.server+":"+setting.port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
@@ -46,8 +48,8 @@ func main() {
 
 	client := ClipboardService.NewClipboardServiceClient(conn)
 
-	stream, err := client.SubscribeClipboard(context.Background(), &ClipboardService.SubscribeClipboardRequest{})
-	alive, err := client.CheckConnectivity(context.Background())
+	stream, err := client.SubscribeClipboard(ctx, &ClipboardService.SubscribeClipboardRequest{})
+	alive, err := client.CheckConnectivity(ctx)
 
 	defer func() {
 		err := stream.CloseSend()
@@ -120,13 +122,13 @@ func main() {
 						// try to reconnect
 						time.Sleep(setting.tryConnectInterval)
 
-						stream, err = client.SubscribeClipboard(context.Background(), &ClipboardService.SubscribeClipboardRequest{})
+						stream, err = client.SubscribeClipboard(ctx, &ClipboardService.SubscribeClipboardRequest{})
 						if err != nil {
 							log.Printf("Error subscribing: %v", err)
 							continue
 						}
 
-						alive, err = client.CheckConnectivity(context.Background())
+						alive, err = client.CheckConnectivity(ctx)
 						if err != nil {
 							log.Printf("Error checking connectivity: %v", err)
 							continue
@@ -205,5 +207,8 @@ func main() {
 			}()
 		}
 	}()
-	select {}
+	select {
+	case <-ctx.Done():
+		log.Printf("Exited.")
+	}
 }

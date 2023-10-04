@@ -25,6 +25,8 @@ message CreateClipboardsRequest {
 
 message CreateClipboardsResponse {
   repeated string ids = 1;
+  repeated string msg = 2;
+  repeated string values = 3;
 }
 
 message GetClipboardsRequest {
